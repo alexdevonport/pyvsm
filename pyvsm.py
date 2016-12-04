@@ -68,13 +68,15 @@ def analyze_easy(hup, mup, hdn, mdn, fp, mkplt=True):
     hc = gethc(hup, mup, hdn, mdn)
     print('file={:s}, ms={:.4g}, hc={:.4g}'.format(fp, ms, hc))
     if mkplt:
-        plot_easy(hup, mup, hdn, mdn, fp)
+        plot_easy(hup, mup, hdn, mdn, fp, ms, hc)
     return None
 
 
-def plot_easy(hup, mup, hdn, mdn, fp):
+def plot_easy(hup, mup, hdn, mdn, fp, ms, hc):
     plt.plot(hup, mup, 'g', label='M-H loop data')
     plt.plot(hdn, mdn, 'g')
+    plt.plot([-hc, -hc],[-ms, ms], [hc, hc], [-ms, ms],
+        label='coercivity')
     plt.legend()
     plt.grid(True)
     plt.show()
