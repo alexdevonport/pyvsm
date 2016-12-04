@@ -1,3 +1,4 @@
+#! /usr/bin/env python3
 """
 pyvsm: VSM analysis program. takes in VSM data file,
 calculates Ms, Hc and Hk. Written with the promise of
@@ -10,7 +11,6 @@ import sys
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-
 
 def main():
     parser = mkparser()
@@ -33,9 +33,9 @@ def main():
 def getaxis(args):
     easy = args.easy
     hard = args.hard
-    if easy != hard:
+    if easy != hard:  # that is, if exactly one flag were raised
         return easy or (not hard)
-    else:
+    else:  # if neither or both flags were raised, disambiguate
         i = str(input('Easy or hard axis data? (E/h) '))
         if 'h' in i.lower():
             return False
@@ -44,18 +44,22 @@ def getaxis(args):
 
 
 def analyze_hard(hup, mup, hdn, mdn, fp, rh, mkplt=True):
-    hpltup, mpltup, hpltdn, mpltdn, hk= gethk(hup, mup, hdn, mdn, rh)
+    hplt, mplt, hk= gethk(hup, mup, hdn, mdn, rh)
     ms = getms(hup, mup, hdn, mdn)
     hc = gethc(hup, mup, hdn, mdn)
     print('file={:s}, ms={:.4g}, hk={:.4g}'.format(fp, ms, hk))
     if mkplt:
-        plt.plot(hup, mup, label='up')
-        plt.plot(hdn, mdn, label='dn')
-        plt.plot(hpltup, mpltup, label='hk line up')
-        plt.plot(hpltdn, mpltdn, label='hk line dn')
-        plt.legend()
-        plt.grid(True)
-        plt.show()
+        plot_hard(hup, mup, hdn, mdn, hplt, mplt, fp)
+    return None
+
+
+def plot_hard(hup, mup, hdn, mdn, hplt, mplt, fp):
+    plt.plot(hup, mup, 'g', label='M-H loop data')
+    plt.plot(hdn, mdn, 'g')
+    plt.plot(hplt, mplt, label='hk extrapolation')
+    plt.legend()
+    plt.grid(True)
+    plt.show()
     return None
 
 
@@ -64,11 +68,16 @@ def analyze_easy(hup, mup, hdn, mdn, fp, mkplt=True):
     hc = gethc(hup, mup, hdn, mdn)
     print('file={:s}, ms={:.4g}, hc={:.4g}'.format(fp, ms, hc))
     if mkplt:
-        plt.plot(hup, mup, label='up')
-        plt.plot(hdn, mdn, label='dn')
-        plt.legend()
-        plt.grid(True)
-        plt.show()
+        plot_easy(hup, mup, hdn, mdn, fp)
+    return None
+
+
+def plot_easy(hup, mup, hdn, mdn, fp):
+    plt.plot(hup, mup, 'g', label='M-H loop data')
+    plt.plot(hdn, mdn, 'g')
+    plt.legend()
+    plt.grid(True)
+    plt.show()
     return None
 
 
@@ -138,10 +147,13 @@ def gethk(hup, mup, hdn, mdn, rh):
     zcup = zerocross(hup, mup)
     zcdn = zerocross(hdn, mdn)
     ms = getms(hup, mup, hdn, mdn)
-    hkup, slopeup, hpltup, mpltup = hk1d(hup, mup, rh, ms)
-    hkdn, slopedn, hpltdn, mpltdn = hk1d(hdn, mdn, rh, ms)
+    hkup, slopeup = hk1d(hup, mup, rh, ms)
+    hkdn, slopedn = hk1d(hdn, mdn, rh, ms)
+    slopeav = 0.5*(slopeup+slopedn)
     hk = 0.5*(abs(hkup) + abs(hkdn))
-    return hpltup, mpltup, hpltdn, mpltdn, hk
+    hplt = np.linspace(-hk, hk, 100)
+    mplt = slopeav*hplt
+    return hplt, mplt, hk
 
 
 def hk1d(h, m, rh, ms):
@@ -150,9 +162,7 @@ def hk1d(h, m, rh, ms):
     hlin, mlin = constrict(h0, m, rh)
     slope = np.mean(nderiv(hlin, mlin))
     hk = ms/slope
-    hplt = np.linspace(-hk-hzc, hk-hzc, 100)
-    mplt = slope*(hplt+hzc)
-    return hk, slope, hplt, mplt
+    return hk, slope
 
 
 def constrict(x,y,rad):
