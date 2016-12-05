@@ -6,6 +6,7 @@ returning to the Haskell version at some point.
 
 """
 
+import math
 import argparse
 import sys
 import pandas as pd
@@ -49,14 +50,20 @@ def analyze_hard(hup, mup, hdn, mdn, fp, rh, mkplt=True):
     hc = gethc(hup, mup, hdn, mdn)
     print('file={:s}, ms={:.4g}, hk={:.4g}'.format(fp, ms, hk))
     if mkplt:
-        plot_hard(hup, mup, hdn, mdn, hplt, mplt, fp)
+        plot_hard(hup, mup, hdn, mdn, hplt, mplt, ms, hk, fp)
     return None
 
 
-def plot_hard(hup, mup, hdn, mdn, hplt, mplt, fp):
+def plot_hard(hup, mup, hdn, mdn, hplt, mplt, ms, hk, fp):
     plt.plot(hup, mup, 'g', label='M-H loop data')
     plt.plot(hdn, mdn, 'g')
-    plt.plot(hplt, mplt, label='hk extrapolation')
+    plt.plot(hplt, mplt, 'b', label='hk extrapolation')
+    hms1 = np.linspace(hup[0], -hk, 100)
+    hms2 = np.linspace(hk, hup[-1],100)
+    ms0 = math.copysign(ms,mup[0])
+    ms1 = math.copysign(ms,mup[-1])
+    plt.plot([hup[0], -hk],[ms0, ms0], 'b')
+    plt.plot([hk,hup[-1]],[ms1,ms1], 'b')
     plt.legend()
     plt.grid(True)
     plt.show()
@@ -88,7 +95,7 @@ def mkparser():
 Analyze VSM hysteresis loops to calculate saturation magnetization (Ms),
 coercivity (Hc), anisotropy field (Hk), remanent magnetization (Mr), and
 squareness.
-    """
+"""
     epi = """If neither -e or -r is specified, the user will be queried
 as to whether the data is easy-axis or hard axis. Once easy or hard axis
 is specified, all loop data files are analyzed with that option.
@@ -127,7 +134,9 @@ def getdata(fp):
 
 
 def getms(hup, mup, hdn, mdn):
-    return ms1d(mup)
+    a = 0.25*(ms1d(mup) + ms1d(np.flipud(mup))
+              + ms1d(mdn) + ms1d(np.flipud(mdn)))
+    return a
     
     
 def ms1d(m):
