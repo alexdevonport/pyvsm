@@ -6,6 +6,7 @@ returning to the Haskell version at some point.
 
 """
 
+import os.path
 import math
 import argparse
 import sys
@@ -48,7 +49,8 @@ def analyze_hard(hup, mup, hdn, mdn, fp, rh, mkplt=True):
     hplt, mplt, hk= gethk(hup, mup, hdn, mdn, rh)
     ms = getms(hup, mup, hdn, mdn)
     hc = gethc(hup, mup, hdn, mdn)
-    print('file={:s}, ms={:.4g}, hk={:.4g}'.format(fp, ms, hk))
+    dataname = os.path.splitext(os.path.basename(fp))[0]
+    print('file={:s}, ms={:.4g}, hk={:.4g}'.format(dataname, ms, hk))
     if mkplt:
         plot_hard(hup, mup, hdn, mdn, hplt, mplt, ms, hk, fp)
     return None
@@ -73,7 +75,11 @@ def plot_hard(hup, mup, hdn, mdn, hplt, mplt, ms, hk, fp):
 def analyze_easy(hup, mup, hdn, mdn, fp, mkplt=True):
     ms = getms(hup, mup, hdn, mdn)
     hc = gethc(hup, mup, hdn, mdn)
-    print('file={:s}, ms={:.4g}, hc={:.4g}'.format(fp, ms, hc))
+    mr = getmr(hup, mup, hdn, mdn)
+    sqr = mr / ms
+    dataname = os.path.splitext(os.path.basename(fp))[0]
+    print("""file={:s}, ms={:.4g}, hc={:.4g},\
+ mr={:.4g}, sqr={:.4g}""".format(dataname, ms, hc, mr, sqr))
     if mkplt:
         plot_easy(hup, mup, hdn, mdn, fp, ms, hc)
     return None
@@ -147,6 +153,17 @@ def ms1d(m):
             mflat.append(mk)
     return abs(np.mean(mflat))
 
+
+def getmr(hup, mup, hdn, mdn):
+    mrup = abs(mr1d(hup, mup))
+    mrdn = abs(mr1d(hdn, mdn))
+    mr = 0.5*(mrup+mrdn)
+    return mr
+
+
+def mr1d(h, m):
+    mr = zerocross(m, h) 
+    return mr
 
 def gethc(hup, mup, hdn, mdn):
     zcup = zerocross(hup, mup)
