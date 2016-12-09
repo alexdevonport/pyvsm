@@ -81,16 +81,19 @@ def analyze_easy(hup, mup, hdn, mdn, fp, mkplt=True):
     print("""file={:s}, ms={:.4g}, hc={:.4g},\
  mr={:.4g}, sqr={:.4g}""".format(dataname, ms, hc, mr, sqr))
     if mkplt:
-        plot_easy(hup, mup, hdn, mdn, fp, ms, hc)
+        plot_easy(hup, mup, hdn, mdn, fp, ms, hc, mr)
     return None
 
 
-def plot_easy(hup, mup, hdn, mdn, fp, ms, hc):
-    plt.plot(hup, mup, 'g', label='M-H loop data')
-    plt.plot(hdn, mdn, 'g')
-    plt.plot([-hc, -hc],[-ms, ms], [hc, hc], [-ms, ms],
-        label='coercivity')
-    plt.legend()
+def plot_easy(hup, mup, hdn, mdn, fp, ms, hc, mr):
+    plt.plot(hup, mup, 'k', label='M-H loop data')
+    plt.plot(hdn, mdn, 'k')
+    plt.plot([-hc, -hc],[-ms, ms], 'b--', label='ideal (sqr=1) loop') 
+    plt.plot([hc, hc], [-ms, ms], 'b--')
+    plt.plot([-hc, hc], [ms, ms], 'b--')
+    plt.plot([-hc, hc], [-ms, -ms], 'b--')
+    plt.plot([0, 0], [mr, mr], 'ro ', label='mr')
+    plt.legend(loc='best')
     plt.grid(True)
     plt.show()
     return None
