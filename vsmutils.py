@@ -44,6 +44,22 @@ class VsmSession:
         self.samples.append(newSample)
         if makeCurrent:
             self.currentWorkingSample = self.samples[-1]
+        return None
+
+
+    def renameCurrentWorkingSample(self, newname):
+        if newname != '':
+            self.currentWorkingSample.name = newname
+        return None
+
+    
+    def removeCurrentWorkingSample(self):
+        idx = self.samples.index(self.currentWorkingSample)
+        self.samples.remove(self.currentWorkingSample)
+        try:
+            self.currentWorkingSample = self.samples[idx-1]
+        except IndexError:
+            self.currentWorkingSample = None
 
     def save(self):
         return None
@@ -182,10 +198,16 @@ class DataSetsFrame(tk.Frame):
         super().__init__()
         self.samplesLabel = tk.Label(self,text='samples', relief='sunken')
         self.samplesLabel.pack(fill='x')
+        self.spacerLabel = tk.Label(self)
+        self.spacerLabel.pack(fill='x')
         self.dataSetList = tk.Listbox(self)
         self.dataSetList.pack(fill='y')
         self.addSampleButton = tk.Button(self, text='Add Sample')
         self.addSampleButton.pack(fill='x')
+        self.renameSampleButton = tk.Button(self, text='Rename Sample')
+        self.renameSampleButton.pack(fill='x')
+        self.removeSampleButton = tk.Button(self, text='Remove Sample')
+        self.removeSampleButton.pack(fill='x')
         self.spacerLabel = tk.Label(self,text='')
         self.spacerLabel.pack(fill='both')
         return None

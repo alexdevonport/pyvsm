@@ -40,12 +40,23 @@ class PyVsmApplication(tk.Frame):
 
 
     def create_widgets(self):
+        """
+        tdl: - consider factoring out a 'link commands' method
+               to handle connecting widgets from the child classes
+               to inter-child-class methods that are defined in this
+               class.
+        """
         self.create_menu()
         self.dataSetsFrame = vsmutils.DataSetsFrame()
         self.dataSetsFrame.pack(side=tk.LEFT, anchor='n')
         self.dataSetsFrame.dataSetList.bind('<<ListboxSelect>>', 
             self.updateCurrentWorkingSample)
-        self.dataSetsFrame.addSampleButton.config(command=self.addSample)
+        self.dataSetsFrame.addSampleButton \
+            .config(command=self.addSample)
+        self.dataSetsFrame.renameSampleButton \
+            .config(command=self.renameCurrentWorkingSample)
+        self.dataSetsFrame.removeSampleButton \
+            .config(command=self.removeCurrentWorkingSample)
 
         self.plotter = vsmutils.VsmPlotter(self.master)
         self.plotter.pack(side=tk.LEFT, expand=1)
@@ -81,7 +92,7 @@ class PyVsmApplication(tk.Frame):
         sessionmenu.add_command(label='Add Sample',
             command=self.addSample)
         sessionmenu.add_command(label='Rename Sample',
-            command=self.renameCurrentworkingSample)
+            command=self.renameCurrentWorkingSample)
         menubar.add_cascade(label='Session', menu=sessionmenu)
         self.master.config(menu=menubar)
         return None
@@ -131,20 +142,28 @@ class PyVsmApplication(tk.Frame):
         if not name:
             name = vsmutils.askstring(self.master, 'new sample',
                 'Name of new sample:')
-        self.session.addSample(name, True)
-        self.dataSetsFrame.dataSetList.insert(tk.END, name)
-        self.update()
+        if name != '':
+            self.session.addSample(name, True)
+            self.update()
         return None
     
 
-    def renameCurrentworkingSample(self):
+    def removeCurrentWorkingSample(self):
+        currentName = self.session.currentWorkingSample.name
+        delet = messagebox.askyesno('Remove sample',
+            'Remove sample "{:s}"?'.format(currentName))
+        if delet:
+            self.session.removeCurrentWorkingSample()
+            self.update()
+        return None
+
+
+    def renameCurrentWorkingSample(self):
         newname = vsmutils.askstring(self.master, 'new sample name',
             'enter new name for current sample',
             init=self.session.currentWorkingSample.name)
-        # modify to handle more whitespace cases
-        # what if user tries to name the sample ' \t  '?
         if newname != '': 
-            self.session.currentWorkingSample.name = newname
+            self.session.renameCurrentWorkingSample(newname)
         self.update()
         return None
 
