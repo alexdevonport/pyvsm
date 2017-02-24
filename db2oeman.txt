@@ -1,0 +1,66 @@
+
+
+2016-12-20 09:35                                                  Page 1
+
+
+usage: db2oe [-h] [-u] [-v] [-b V] [-z Z] [-s S] [-w W] A
+
+Tool to calculate stimulus voltages and fields in a PIMM.
+
+positional arguments:
+  A                     Frontend attenuation, in dB.
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -u, --show-units      Display units on output.
+  -v, --verbose         Display detailed output.
+  -b V, --base-voltage V
+                        Stimulus voltage at zero attenuation, in Volts.
+                        default is 35.0.
+  -z Z, --impedance Z   Transmission line impedance. Default is 50 Ohms.
+  -s S, --splitter-atten S
+                        Amount of impedance between the splitter and
+                        waveguides. default is 0 dB.
+  -w W, --waveguide-width W
+                        Width of waveguide center conductor, in microns.
+                        Default is 250 microns.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
