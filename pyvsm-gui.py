@@ -2,6 +2,7 @@ import tkinter as tk
 import tkinter.filedialog as filedialog
 import tkinter.messagebox as messagebox
 import vsmutils
+import splashscreen
 import pickle
 
 """
@@ -12,6 +13,8 @@ Camel case, bitches
 def main():
     root = tk.Tk()
     root.title('PyVSM')
+    splash = splashscreen.SplashScreen(root,imageFilepath='hi.gif',
+        sleepTime=5)
     tk.Grid.rowconfigure(root, 0, weight=1)
     tk.Grid.columnconfigure(root, 0, weight=1)
     app = PyVsmApplication(root)
