@@ -19,6 +19,7 @@ class VsmAnalyzer:
 
 
     def analyzeData(self):
+        self.sample.results = {}
         self.analyzeHardData()
         self.analyzeEasyData()
         return None
@@ -45,7 +46,7 @@ class VsmAnalyzer:
         try:
             bfup, bfdn, hparams = analyze(self.sample.data, 'easy')
             self.sample.results['ms'] = hparams[0]
-            self.sample.results['hc'] = hparams[1]
+            self.sample.results['hc (Oe)'] = hparams[1]
             self.sample.results['mr'] = hparams[2]
             self.sample.results['sqr'] = hparams[3]
             self.sample.data['easy fit up']['M'] = bfup

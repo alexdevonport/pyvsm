@@ -234,6 +234,8 @@ class PyVsmApplication(tk.Frame):
                 self.session.currentWorkingSample.easyAxisDataFilepath)
             self.analysisManager.hardAxisFileSelector.filepath.set(
                 self.session.currentWorkingSample.hardAxisDataFilepath)
+            self.analysisManager.writeResults(self.session\
+                .currentWorkingSample.results)
         else:
             self.analysisManager.easyAxisFileSelector.filepath.set('')
             self.analysisManager.hardAxisFileSelector.filepath.set('')

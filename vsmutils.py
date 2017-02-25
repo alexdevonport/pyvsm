@@ -26,7 +26,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
 import itertools as it
 import analysisutils
-
+import readonlytext
 
 class VsmSession:
     def __init__(self, name='Untitled VSM session', samples=[],
@@ -146,20 +146,12 @@ class VsmPlotter(tk.Frame):
         super().__init__(master)
         self.fig = Figure(figsize=(8,4))
         self.fig.patch.set_facecolor('#d9d9d9')
-        self.easyax = self.fig.add_subplot(121)
-        self.easyax.set_title('Easy Axis')
-        self.easyax.set_xlabel('field (Oe)')
-        self.easyax.set_ylabel('moment (emu$\\times 10^{-6}$)')
-        self.hardax = self.fig.add_subplot(122, sharey=self.easyax)
-        self.hardax.set_title('Hard Axis')
-        self.hardax.set_xlabel('field (Oe)')
         self.canvas = FigureCanvasTkAgg(self.fig, master=master)
         self.canvas.get_tk_widget().pack(side=tk.LEFT)
         self.canvas._tkcanvas.pack(side=tk.LEFT, fill=tk.BOTH, 
             expand=1)
         self.rowconfigure(0,weight=1)
         self.columnconfigure(0,weight=1)
-        self.fig.tight_layout(pad=2)
         return None
 
 
@@ -167,24 +159,33 @@ class VsmPlotter(tk.Frame):
         """
         redraw easy and hard axis plots.
         """
-        self.easyax.lines = []
-        self.hardax.lines = []
+        #self.easyax.lines = []
+        #self.hardax.lines = []
+        self.fig.clear()
+        self.easyax = self.fig.add_subplot(121)
+        self.easyax.set_title('Easy Axis')
+        self.easyax.set_xlabel('field (Oe)')
+        self.easyax.set_ylabel('moment (emu$\\times 10^{-6}$)')
+        self.hardax = self.fig.add_subplot(122, sharey=self.easyax)
+        self.hardax.set_title('Hard Axis')
+        self.hardax.set_xlabel('field (Oe)')
         if sample:
             ds = sample.data
-            plotArgs = [('data up', 'k', ':'),
-                        ('data down', 'k', ':'),
-                        ('fit up', 'k', '--'),
-                        ('fit down', 'k', '--')]
-            for key, color, linestyle in plotArgs:
+            plotArgs = [('data up', 'k', 'None', 3, '.'),
+                        ('data down', 'k', 'None', 3, '.'),
+                        ('fit up', 'b', '-', 1, 'None'),
+                        ('fit down', 'b', '-', 1, 'None')]
+            for key, color, linestyle, linewidth, marker in plotArgs:
                 self.easyax.plot(ds['easy '+key]['H'], 
                     ds['easy '+key]['M']*1E6, color=color, 
-                    linestyle=linestyle)
+                    linestyle=linestyle, linewidth=linewidth, marker=marker)
                 self.hardax.plot(ds['hard '+key]['H'], 
                     ds['hard '+key]['M']*1E6, color=color, 
-                    linestyle=linestyle)
+                    linestyle=linestyle, linewidth=linewidth, marker=marker)
         else:
             self.easyax.plot([],[])
             self.hardax.plot([],[])
+        self.fig.tight_layout(pad=2)
         self.canvas.show()
         return None
 
@@ -244,6 +245,25 @@ class AnalysisManagerFrame(tk.Frame):
         self.analyzeButton = tk.Button(self, text='Analyze')
         self.analyzeButton.pack(fill='x')
 
+        self.resultsLabel = tk.Label(self, text='results', 
+            relief='sunken')
+        self.resultsLabel.pack(pady=5, fill='x')
+        self.resultsText = readonlytext.ReadOnlyText(self, 
+            width=30, height=8)
+        self.resultsText.pack(fill='x')
+
+        return None
+
+    def writeResults(self, results):
+        """
+        Write the contents of a results dict to the
+        results text area of the analysis manager.
+        """
+        self.resultsText.delete(1.0, tk.END)
+        for resultName, resultValue in results.items():
+            self.resultsText.insert('end','{:s}: {:.3e}\n'\
+                .format(resultName,
+                resultValue))
         return None
 
 
@@ -328,5 +348,4 @@ class FileSelectorButton(tk.Frame):
         if newFilePath != '' and self.fileChangeCallback:
             self.fileChangeCallback()
         return None
-
 
