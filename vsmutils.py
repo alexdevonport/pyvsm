@@ -25,6 +25,7 @@ matplotlib.use('TkAgg')
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
 import itertools as it
+import analysisutils
 
 
 class VsmSession:
@@ -79,7 +80,7 @@ class VsmSample:
     def __init__(self, name):
         self.name = name
         self.results = {}
-        self.analyzer = VsmAnalyzer()
+        self.analyzer = analysisutils.VsmAnalyzer(self)
         self.data = {}
         self.easyAxisDataFilepath = ''
         self.hardAxisDataFilepath = ''
@@ -90,6 +91,7 @@ class VsmSample:
             self.data[' '.join(idx)] = {'H':np.array([]), 
                 'M':np.array([])}
         return None
+
 
     def importData(self, filepath, axis):
         """
@@ -129,15 +131,10 @@ class VsmSample:
                 mdn.append(mpts[k])
         return hup, mup, hdn, mdn
 
-    def getPlottableData(self):
-        """
-        """
-        return None
 
-
-class VsmAnalyzer:
-    def __init__(self):
-        return None
+    def analyzeData(self):
+        self.analyzer.analyzeData()
+        print(self.results)
 
 
 class VsmPlotter(tk.Frame):
@@ -243,6 +240,9 @@ class AnalysisManagerFrame(tk.Frame):
         self.analysisOptionsButton = tk.Button(self, 
             text='Analysis options')
         self.analysisOptionsButton.pack(fill='x')
+
+        self.analyzeButton = tk.Button(self, text='Analyze')
+        self.analyzeButton.pack(fill='x')
 
         return None
 

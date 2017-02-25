@@ -32,9 +32,9 @@ class PyVsmApplication(tk.Frame):
     def __init__(self, master=None):
         super().__init__(master)
         self.master = master
+        self.session = vsmutils.VsmSession()
         self.pack()
         self.create_widgets()
-        self.session = vsmutils.VsmSession()
         self.addSample(name='unnamed sample')
         return None
 
@@ -68,6 +68,8 @@ class PyVsmApplication(tk.Frame):
         self.analysisManager.hardAxisFileSelector \
             .fileChangeCallback = lambda: self.importData(axis='hard',
             fp=self.analysisManager.hardAxisFileSelector.filepath.get())
+        self.analysisManager.analyzeButton.config(
+            command=self.analyzeData)
         self.analysisManager.pack(side=tk.LEFT, expand=1,
             anchor='n')
         return None
@@ -135,7 +137,13 @@ class PyVsmApplication(tk.Frame):
             self.addSample(name='unnamed sample')
         self.update()
         return None
-    
+   
+
+    def analyzeData(self):
+        if self.session.currentWorkingSample:
+            self.session.currentWorkingSample.analyzeData()
+        self.update()
+        return None
     
 
     def addSample(self, name=None):
