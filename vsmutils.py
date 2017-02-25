@@ -170,20 +170,24 @@ class VsmPlotter(tk.Frame):
         """
         redraw easy and hard axis plots.
         """
-        ds = sample.data
         self.easyax.lines = []
         self.hardax.lines = []
-        plotArgs = [('data up', 'k', ':'),
-                    ('data down', 'k', ':'),
-                    ('fit up', 'k', '--'),
-                    ('fit down', 'k', '--')]
-        for key, color, linestyle in plotArgs:
-            self.easyax.plot(ds['easy '+key]['H'], 
-                ds['easy '+key]['M']*1E6, color=color, 
-                linestyle=linestyle)
-            self.hardax.plot(ds['hard '+key]['H'], 
-                ds['hard '+key]['M']*1E6, color=color, 
-                linestyle=linestyle)
+        if sample:
+            ds = sample.data
+            plotArgs = [('data up', 'k', ':'),
+                        ('data down', 'k', ':'),
+                        ('fit up', 'k', '--'),
+                        ('fit down', 'k', '--')]
+            for key, color, linestyle in plotArgs:
+                self.easyax.plot(ds['easy '+key]['H'], 
+                    ds['easy '+key]['M']*1E6, color=color, 
+                    linestyle=linestyle)
+                self.hardax.plot(ds['hard '+key]['H'], 
+                    ds['hard '+key]['M']*1E6, color=color, 
+                    linestyle=linestyle)
+        else:
+            self.easyax.plot([],[])
+            self.hardax.plot([],[])
         self.canvas.show()
         return None
 
@@ -236,13 +240,9 @@ class AnalysisManagerFrame(tk.Frame):
         self.hardAxisFileSelector = FileSelectorButton(self)
         self.hardAxisFileSelector.pack()
 
-        return None
-
-
-    def update():
-        """
-        Updates the widgets in the analysis 
-        """
+        self.analysisOptionsButton = tk.Button(self, 
+            text='Analysis options')
+        self.analysisOptionsButton.pack(fill='x')
 
         return None
 

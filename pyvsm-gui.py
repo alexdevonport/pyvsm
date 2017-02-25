@@ -96,8 +96,8 @@ class PyVsmApplication(tk.Frame):
         menubar.add_cascade(label='Session', menu=sessionmenu)
         self.master.config(menu=menubar)
         return None
+ 
 
-    
     def loadSession(self):
         f = filedialog.askopenfile(mode='rb')
         s = pickle.load(f)
@@ -105,7 +105,7 @@ class PyVsmApplication(tk.Frame):
         self.update()
         return None
 
-    
+
     def saveSession(self):
         f = filedialog.asksaveasfile(mode='wb')
         pickle.dump(self.session, f)
@@ -139,7 +139,7 @@ class PyVsmApplication(tk.Frame):
     
 
     def addSample(self, name=None):
-        if not name:
+        if name is None:
             name = vsmutils.askstring(self.master, 'new sample',
                 'Name of new sample:')
         if name != '':
@@ -149,22 +149,28 @@ class PyVsmApplication(tk.Frame):
     
 
     def removeCurrentWorkingSample(self):
-        currentName = self.session.currentWorkingSample.name
-        delet = messagebox.askyesno('Remove sample',
-            'Remove sample "{:s}"?'.format(currentName))
-        if delet:
-            self.session.removeCurrentWorkingSample()
-            self.update()
+        if self.session.currentWorkingSample:
+            currentName = self.session.currentWorkingSample.name
+            delet = messagebox.askyesno('Remove sample',
+                'Remove sample "{:s}"?'.format(currentName))
+            if delet:
+                self.session.removeCurrentWorkingSample()
+                self.update()
+        else:
+            messagebox.showwarning('remove sample', 'no sample to remove!')
         return None
 
 
     def renameCurrentWorkingSample(self):
-        newname = vsmutils.askstring(self.master, 'new sample name',
-            'enter new name for current sample',
-            init=self.session.currentWorkingSample.name)
-        if newname != '': 
-            self.session.renameCurrentWorkingSample(newname)
-        self.update()
+        if self.session.currentWorkingSample:
+            newname = vsmutils.askstring(self.master, 'new sample name',
+                'enter new name for current sample',
+                init=self.session.currentWorkingSample.name)
+            if newname != '': 
+                self.session.renameCurrentWorkingSample(newname)
+            self.update()
+        else:
+            messagebox.showwarning('rename sample', 'No sample to rename!')
         return None
 
 
@@ -187,6 +193,7 @@ class PyVsmApplication(tk.Frame):
         self.updateSamples()
         self.updatePlotter()
         self.updateAnalysisManager()
+        return None
 
 
     def updateSamples(self):
@@ -199,10 +206,10 @@ class PyVsmApplication(tk.Frame):
     def updateCurrentWorkingSample(self, evt):
         newCurrentWorkingSampleIndex = self.dataSetsFrame \
             .dataSetList.curselection()
-        self.session.currentWorkingSample = self.session. \
-            samples[newCurrentWorkingSampleIndex[0]]
-        print(self.session.currentWorkingSample.name)
-        self.update()
+        if newCurrentWorkingSampleIndex:
+            self.session.currentWorkingSample = self.session. \
+                samples[newCurrentWorkingSampleIndex[0]]
+            self.update()
         return None
    
 
@@ -214,10 +221,14 @@ class PyVsmApplication(tk.Frame):
 
 
     def updateAnalysisManager(self):
-        self.analysisManager.easyAxisFileSelector.filepath.set(
-            self.session.currentWorkingSample.easyAxisDataFilepath)
-        self.analysisManager.hardAxisFileSelector.filepath.set(
-            self.session.currentWorkingSample.hardAxisDataFilepath)
+        if self.session.currentWorkingSample:
+            self.analysisManager.easyAxisFileSelector.filepath.set(
+                self.session.currentWorkingSample.easyAxisDataFilepath)
+            self.analysisManager.hardAxisFileSelector.filepath.set(
+                self.session.currentWorkingSample.hardAxisDataFilepath)
+        else:
+            self.analysisManager.easyAxisFileSelector.filepath.set('')
+            self.analysisManager.hardAxisFileSelector.filepath.set('')
         return None
 
 if __name__ == '__main__':
