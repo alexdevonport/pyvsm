@@ -222,7 +222,8 @@ class AnalysisManagerFrame(tk.Frame):
     """
     def __init__(self):
         super().__init__()
-        self.analysisLabel = tk.Label(self, text='Analysis',
+        self.title = tk.StringVar()
+        self.analysisLabel = tk.Label(self, textvariable=self.title,
             relief='sunken')
         self.analysisLabel.pack(fill='x')
         self.spacerLabel = tk.Label(self, text='')
@@ -230,12 +231,14 @@ class AnalysisManagerFrame(tk.Frame):
         self.easyAxisDataLabel = tk.Label(self, text='easy axis data file',
             relief='sunken')
         self.easyAxisDataLabel.pack(fill='x')
-        self.easyAxisFileSelector = FileSelectorButton(self)
+        self.easyAxisFileSelector = FileSelectorButton(self,
+            title='Select easy axis data file')
         self.easyAxisFileSelector.pack()
         self.hardAxisDataLabel = tk.Label(self, text='hard axis data file',
             relief='sunken')
         self.hardAxisDataLabel.pack(fill='x')
-        self.hardAxisFileSelector = FileSelectorButton(self)
+        self.hardAxisFileSelector = FileSelectorButton(self,
+            title='Select hard axis data file')
         self.hardAxisFileSelector.pack()
 
         self.analysisOptionsButton = tk.Button(self, 
@@ -262,8 +265,7 @@ class AnalysisManagerFrame(tk.Frame):
         self.resultsText.delete(1.0, tk.END)
         for resultName, resultValue in results.items():
             self.resultsText.insert('end','{:s}: {:.3e}\n'\
-                .format(resultName,
-                resultValue))
+                .format(resultName, resultValue))
         return None
 
 
@@ -329,8 +331,9 @@ def askstring(master, title, prompt, init=''):
 
 
 class FileSelectorButton(tk.Frame):
-    def __init__(self, master=None):
+    def __init__(self, master=None, title='Select File'):
         super().__init__(master=master)
+        self.title = title
         self.filepath = tk.StringVar()
         self.fileChangeCallback = None
         self.filepathEntry = tk.Entry(self, state='readonly',
@@ -343,7 +346,7 @@ class FileSelectorButton(tk.Frame):
 
 
     def browse(self):
-        newFilePath = filedialog.askopenfilename()
+        newFilePath = filedialog.askopenfilename(title=self.title)
         self.filepath.set(newFilePath)
         if newFilePath != '' and self.fileChangeCallback:
             self.fileChangeCallback()

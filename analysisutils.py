@@ -28,7 +28,7 @@ class VsmAnalyzer:
     def analyzeHardData(self):
         try:
             bfup, bfdn, hparams = analyze(self.sample.data, 'hard')
-            self.sample.results['hard ms'] = hparams
+            self.sample.results['hard axis ms'] = hparams[0]
             self.sample.results['hk'] = hparams[1]
             self.sample.data['hard fit up']['M'] = bfup
             self.sample.data['hard fit down']['M'] = bfdn
@@ -46,7 +46,7 @@ class VsmAnalyzer:
         try:
             bfup, bfdn, hparams = analyze(self.sample.data, 'easy')
             self.sample.results['ms'] = hparams[0]
-            self.sample.results['hc (Oe)'] = hparams[1]
+            self.sample.results['hc'] = hparams[1]
             self.sample.results['mr'] = hparams[2]
             self.sample.results['sqr'] = hparams[3]
             self.sample.data['easy fit up']['M'] = bfup
@@ -68,10 +68,12 @@ def analyze(data, axis):
     rh = 1.0
     ms_est = getms(hup, mup, hdn, mdn)
     hk_est = gethk(hup, mup, hdn, mdn, rh)
+    zeroCrossUp = zerocross(hup, mup)
+    zeroCrossDown = zerocross(hdn, mdn)
     bestpup, bestcovup = curve_fit(switchmdl, hup, mup,
-        p0=[ms_est, 0, hk_est, 0])
+        p0=[ms_est, zeroCrossDown, hk_est, 0])
     bestpdn, bestcovdn = curve_fit(switchmdl, hdn, mdn,
-        p0=[ms_est, 0, hk_est, 0])
+        p0=[ms_est, zeroCrossUp, hk_est, 0])
     ms = (bestpup[0] + bestpdn[0] ) / 2
     hk = (bestpup[2] + bestpdn[2] ) / 2
     hc = abs(bestpup[1] - bestpdn[1]) / 2

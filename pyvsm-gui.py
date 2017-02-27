@@ -13,7 +13,8 @@ Camel case, bitches
 def main():
     root = tk.Tk()
     root.title('PyVSM')
-    splash = splashscreen.SplashScreen(root,imageFilepath='hi.gif',
+    splash = splashscreen.SplashScreen(root,
+        imageFilepath='pyvsm-logo.gif',
         sleepTime=5)
     tk.Grid.rowconfigure(root, 0, weight=1)
     tk.Grid.columnconfigure(root, 0, weight=1)
@@ -104,7 +105,10 @@ class PyVsmApplication(tk.Frame):
  
 
     def loadSession(self):
-        f = filedialog.askopenfile(mode='rb')
+        f = filedialog.askopenfile(mode='rb',
+            title='Load VSM Session',
+            filetypes=(('PyVSM Sessions', '*.vsm'),
+                       ('All Files', '*.*')))
         s = pickle.load(f)
         self.session = s
         self.update()
@@ -112,7 +116,11 @@ class PyVsmApplication(tk.Frame):
 
 
     def saveSession(self):
-        f = filedialog.asksaveasfile(mode='wb')
+        f = filedialog.asksaveasfile(mode='wb', 
+            title='Save VSM Session',
+            defaultextension='.vsm',
+            filetypes=(('PyVSM Sessions', '*.vsm'),
+                       ('All Files', '*.*')))
         pickle.dump(self.session, f)
         return None
 
@@ -233,6 +241,12 @@ class PyVsmApplication(tk.Frame):
 
     def updateAnalysisManager(self):
         if self.session.currentWorkingSample:
+            # set title
+            name = self.session.currentWorkingSample.name
+            self.analysisManager.title \
+                .set('Analysis of {:s}'.format(name))
+
+            # set data filepaths in selectors
             self.analysisManager.easyAxisFileSelector.filepath.set(
                 self.session.currentWorkingSample.easyAxisDataFilepath)
             self.analysisManager.hardAxisFileSelector.filepath.set(
